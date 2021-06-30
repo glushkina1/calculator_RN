@@ -8,30 +8,42 @@ export default function App() {
     const [op, setOp] = useState(null)
 
     function handleClick(value: any) {
-        if (value == 'C') {
-            if (currentValue == '') {
-                setExpression(''); setOp(null)
-            }
-            setCurrentValue('');
-
-        } else {
-            if (value === '.') {
-                handleDot(value)
-            }
-            if (typeof value === 'number') {
+        switch (value) {
+            case 'C' :
+                handleDelete();
+                break;
+            case '.' :
+                handleDot();
+                break;
+            case '=' :
+                handleEqual();
+                break;
+            case '+':
+            case '-':
+            case '/':
+            case '*':
+                handleOperation(value);
+                break;
+            default:
                 handleDigit(value)
-            }
-            else {
-                handleOperation(value)
-            }
         }
     }
 
-    function handleOperation(value: any) {
-        if (value == '=') {
-            setCurrentValue(eval(expression))
-            setExpression('')
+
+    function handleEqual() {
+        setCurrentValue(eval(expression))
+        setExpression('')
+    }
+
+    function handleDelete() {
+        if (currentValue == '') {
+            setExpression('');
+            setOp(null)
         }
+        setCurrentValue('');
+    }
+
+    function handleOperation(value: any) {
         if (op == null) {
             if (expression == '') {
                 setExpression(expression + currentValue)
@@ -46,18 +58,22 @@ export default function App() {
     }
 
 
-    function handleDot(value: any) {
-        if (expression != '.' && currentValue != '' && currentValue != '.') { setCurrentValue((currentValue + '.'))}
-
+    function handleDot() {
+        if (!currentValue.includes('.')) {
+            if (expression != '.' && currentValue != '' && currentValue != '.') {
+                setCurrentValue((currentValue + '.'))
+                setExpression((expression + '.'))
+            }
+        }
     }
 
     function handleDigit(value: number) {
         if (op != null) {
-            setExpression(expression+op+value);
+            setExpression(expression + op + value);
             setCurrentValue(value.toString());
         } else {
             setCurrentValue((currentValue === '0' && value === 0) ? '0' : currentValue + value);
-            setExpression(expression+value);
+            setExpression(expression + value);
         }
         setOp(null);
     }
@@ -68,20 +84,20 @@ export default function App() {
     for (let i = 0; i < 4; i++) {
         let row = []
         for (let j = 0; j < 3; j++) {
-            row.push(<TouchableOpacity onPress={() => {
+            row.push(<TouchableOpacity key={nums[i][j]} onPress={() => {
                 handleClick(nums[i][j])
             }} style={styles.btn}>
                 <Text style={styles.btnText}>{nums[i][j]}</Text>
             </TouchableOpacity>)
         }
-        rows.push(<View style={styles.row}>{row}</View>)
+        rows.push(<View style={styles.row} key={`${i}`}>{row}</View>)
     }
 
 
     let operations = ['C', '+', '-', '*', '/']
     let ops = []
     for (let i = 0; i < 5; i++) {
-        ops.push(<TouchableOpacity onPress={() => {
+        ops.push(<TouchableOpacity key={operations[i]} onPress={() => {
             handleClick(operations[i])
         }} style={styles.btn}>
             <Text style={styles.btnText}>
